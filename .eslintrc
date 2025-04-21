@@ -1,3 +1,151 @@
-{
-  "extends": "plugin:bpmn-io/es6"
-}
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  id="Definitions_1"
+                  targetNamespace="http://example.com/bpmn">
+
+  <bpmn:collaboration id="Collaboration_1">
+    <bpmn:participant id="Participant_Customer" name="Customer" processRef="Process_Customer" />
+    <bpmn:participant id="Participant_Agency" name="Travel Agency" processRef="Process_Agency" />
+    <bpmn:participant id="Participant_Airline" name="Airline" processRef="Process_Airline" />
+  </bpmn:collaboration>
+
+  <!-- Customer Process -->
+  <bpmn:process id="Process_Customer" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="Offer received"/>
+    <bpmn:task id="CheckOffer" name="Check travel offer"/>
+    <bpmn:exclusiveGateway id="Gateway_Interest"/>
+    <bpmn:task id="RejectOffer" name="Reject offer"/>
+    <bpmn:endEvent id="End_Rejected" name="Offer rejected"/>
+    <bpmn:task id="BookTravel" name="Book travel"/>
+    <bpmn:task id="PayTravel" name="Pay travel"/>
+    <bpmn:endEvent id="End_Paid" name="Travel paid"/>
+
+    <bpmn:sequenceFlow id="Flow1" sourceRef="StartEvent_1" targetRef="CheckOffer"/>
+    <bpmn:sequenceFlow id="Flow2" sourceRef="CheckOffer" targetRef="Gateway_Interest"/>
+    <bpmn:sequenceFlow id="Flow3" sourceRef="Gateway_Interest" targetRef="RejectOffer" name="not interesting"/>
+    <bpmn:sequenceFlow id="Flow4" sourceRef="RejectOffer" targetRef="End_Rejected"/>
+    <bpmn:sequenceFlow id="Flow5" sourceRef="Gateway_Interest" targetRef="BookTravel" name="interesting"/>
+    <bpmn:sequenceFlow id="Flow6" sourceRef="BookTravel" targetRef="PayTravel"/>
+    <bpmn:sequenceFlow id="Flow7" sourceRef="PayTravel" targetRef="End_Paid"/>
+  </bpmn:process>
+
+  <!-- Travel Agency Process -->
+  <bpmn:process id="Process_Agency" isExecutable="true">
+    <bpmn:startEvent id="Start_Agency" name="Offer needed"/>
+    <bpmn:task id="MakeOffer" name="Make travel offer"/>
+    <bpmn:task id="BookingReceived" name="Booking received"/>
+    <bpmn:task id="ConfirmBooking" name="Confirm booking"/>
+    <bpmn:task id="OrderTicket" name="Order ticket"/>
+    <bpmn:endEvent id="End_TicketOrdered" name="Ticket ordered"/>
+
+    <bpmn:sequenceFlow id="AF1" sourceRef="Start_Agency" targetRef="MakeOffer"/>
+    <bpmn:sequenceFlow id="AF2" sourceRef="MakeOffer" targetRef="BookingReceived"/>
+    <bpmn:sequenceFlow id="AF3" sourceRef="BookingReceived" targetRef="ConfirmBooking"/>
+    <bpmn:sequenceFlow id="AF4" sourceRef="ConfirmBooking" targetRef="OrderTicket"/>
+    <bpmn:sequenceFlow id="AF5" sourceRef="OrderTicket" targetRef="End_TicketOrdered"/>
+  </bpmn:process>
+
+  <!-- Airline Process -->
+  <bpmn:process id="Process_Airline" isExecutable="true">
+    <bpmn:startEvent id="Start_Airline" name="Ticket order received"/>
+    <bpmn:task id="HandlePayment" name="Handle payment"/>
+    <bpmn:exclusiveGateway id="Gateway_Payment"/>
+    <bpmn:task id="ConfirmPayment" name="Confirm payment"/>
+    <bpmn:endEvent id="End_Confirmed" name="Payment confirmed"/>
+    <bpmn:endEvent id="End_Refused" name="Payment refused"/>
+
+    <bpmn:sequenceFlow id="BF1" sourceRef="Start_Airline" targetRef="HandlePayment"/>
+    <bpmn:sequenceFlow id="BF2" sourceRef="HandlePayment" targetRef="Gateway_Payment"/>
+    <bpmn:sequenceFlow id="BF3" sourceRef="Gateway_Payment" targetRef="ConfirmPayment" name="payment was made"/>
+    <bpmn:sequenceFlow id="BF4" sourceRef="ConfirmPayment" targetRef="End_Confirmed"/>
+    <bpmn:sequenceFlow id="BF5" sourceRef="Gateway_Payment" targetRef="End_Refused" name="payment failed"/>
+  </bpmn:process>
+
+  <!-- Diagram với vị trí vẽ -->
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1">
+
+      <!-- Customer -->
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="100" y="100" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CheckOffer_di" bpmnElement="CheckOffer">
+        <dc:Bounds x="160" y="90" width="100" height="56"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Interest_di" bpmnElement="Gateway_Interest">
+        <dc:Bounds x="280" y="100" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="RejectOffer_di" bpmnElement="RejectOffer">
+        <dc:Bounds x="360" y="40" width="100" height="56"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Rejected_di" bpmnElement="End_Rejected">
+        <dc:Bounds x="480" y="50" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BookTravel_di" bpmnElement="BookTravel">
+        <dc:Bounds x="360" y="140" width="100" height="56"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="PayTravel_di" bpmnElement="PayTravel">
+        <dc:Bounds x="480" y="140" width="100" height="56"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Paid_di" bpmnElement="End_Paid">
+        <dc:Bounds x="600" y="150" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Agency -->
+      <bpmndi:BPMNShape id="Start_Agency_di" bpmnElement="Start_Agency">
+        <dc:Bounds x="100" y="250" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="MakeOffer_di" bpmnElement="MakeOffer">
+        <dc:Bounds x="160" y="240" width="100" height="56"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BookingReceived_di" bpmnElement="BookingReceived">
+        <dc:Bounds x="280" y="240" width="100" height="56"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ConfirmBooking_di" bpmnElement="ConfirmBooking">
+        <dc:Bounds x="400" y="240" width="100" height="56"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="OrderTicket_di" bpmnElement="OrderTicket">
+        <dc:Bounds x="520" y="240" width="100" height="56"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_TicketOrdered_di" bpmnElement="End_TicketOrdered">
+        <dc:Bounds x="640" y="250" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Airline -->
+      <bpmndi:BPMNShape id="Start_Airline_di" bpmnElement="Start_Airline">
+        <dc:Bounds x="100" y="380" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="HandlePayment_di" bpmnElement="HandlePayment">
+        <dc:Bounds x="160" y="370" width="100" height="56"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Payment_di" bpmnElement="Gateway_Payment">
+        <dc:Bounds x="280" y="380" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ConfirmPayment_di" bpmnElement="ConfirmPayment">
+        <dc:Bounds x="360" y="370" width="100" height="56"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Confirmed_di" bpmnElement="End_Confirmed">
+        <dc:Bounds x="480" y="380" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Refused_di" bpmnElement="End_Refused">
+        <dc:Bounds x="360" y="440" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Example Sequence Flow Paths -->
+      <bpmndi:BPMNEdge id="Flow1_di" bpmnElement="Flow1">
+        <di:waypoint x="136" y="118"/>
+        <di:waypoint x="160" y="118"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow2_di" bpmnElement="Flow2">
+        <di:waypoint x="260" y="118"/>
+        <di:waypoint x="280" y="118"/>
+      </bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</bpmn:definitions>
