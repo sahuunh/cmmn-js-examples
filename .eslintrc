@@ -1,3 +1,73 @@
-{
-  "extends": "plugin:bpmn-io/es6"
-}
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  id="Definitions_1"
+                  targetNamespace="http://example.com/bpmn">
+
+  <bpmn:collaboration id="Collaboration_TravelBooking">
+    <bpmn:participant id="Customer" name="Customer" processRef="CustomerProcess"/>
+    <bpmn:participant id="TravelAgency" name="Travel Agency" processRef="TravelAgencyProcess"/>
+    <bpmn:participant id="Airline" name="Airline" processRef="AirlineProcess"/>
+  </bpmn:collaboration>
+
+  <!-- Customer process -->
+  <bpmn:process id="CustomerProcess" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_Customer" name="Offer received"/>
+    <bpmn:task id="CheckTravelOffer" name="Check travel offer"/>
+    <bpmn:exclusiveGateway id="Decision_Interested" />
+    <bpmn:task id="RejectOffer" name="Reject offer"/>
+    <bpmn:endEvent id="End_OfferRejected" name="Offer rejected"/>
+    <bpmn:task id="BookTravel" name="Book travel"/>
+    <bpmn:task id="PayTravel" name="Pay travel"/>
+    <bpmn:endEvent id="End_TravelPaid" name="Travel paid"/>
+
+    <bpmn:sequenceFlow sourceRef="StartEvent_Customer" targetRef="CheckTravelOffer"/>
+    <bpmn:sequenceFlow sourceRef="CheckTravelOffer" targetRef="Decision_Interested"/>
+    <bpmn:sequenceFlow sourceRef="Decision_Interested" targetRef="RejectOffer">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">not interesting</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow sourceRef="RejectOffer" targetRef="End_OfferRejected"/>
+    <bpmn:sequenceFlow sourceRef="Decision_Interested" targetRef="BookTravel">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">interesting</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow sourceRef="BookTravel" targetRef="PayTravel"/>
+    <bpmn:sequenceFlow sourceRef="PayTravel" targetRef="End_TravelPaid"/>
+  </bpmn:process>
+
+  <!-- Travel Agency process -->
+  <bpmn:process id="TravelAgencyProcess" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_Agency" name="Offer needed"/>
+    <bpmn:task id="MakeOffer" name="Make travel offer"/>
+    <bpmn:task id="BookingReceived" name="Booking received"/>
+    <bpmn:task id="ConfirmBooking" name="Confirm booking"/>
+    <bpmn:task id="OrderTicket" name="Order ticket"/>
+    <bpmn:endEvent id="End_TicketOrdered" name="Ticket ordered"/>
+    <bpmn:endEvent id="End_OfferCanceled" name="Offer canceled"/>
+
+    <bpmn:sequenceFlow sourceRef="StartEvent_Agency" targetRef="MakeOffer"/>
+    <bpmn:sequenceFlow sourceRef="MakeOffer" targetRef="BookingReceived"/>
+    <bpmn:sequenceFlow sourceRef="BookingReceived" targetRef="ConfirmBooking"/>
+    <bpmn:sequenceFlow sourceRef="ConfirmBooking" targetRef="OrderTicket"/>
+    <bpmn:sequenceFlow sourceRef="OrderTicket" targetRef="End_TicketOrdered"/>
+  </bpmn:process>
+
+  <!-- Airline process -->
+  <bpmn:process id="AirlineProcess" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_Airline" name="Ticket order received"/>
+    <bpmn:task id="HandlePayment" name="Handle payment"/>
+    <bpmn:exclusiveGateway id="PaymentCheck"/>
+    <bpmn:task id="ConfirmPayment" name="Confirm payment"/>
+    <bpmn:endEvent id="End_PaymentConfirmed" name="Payment confirmed"/>
+    <bpmn:endEvent id="End_PaymentRefused" name="Payment refused"/>
+
+    <bpmn:sequenceFlow sourceRef="StartEvent_Airline" targetRef="HandlePayment"/>
+    <bpmn:sequenceFlow sourceRef="HandlePayment" targetRef="PaymentCheck"/>
+    <bpmn:sequenceFlow sourceRef="PaymentCheck" targetRef="ConfirmPayment">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">payment was made</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow sourceRef="ConfirmPayment" targetRef="End_PaymentConfirmed"/>
+    <bpmn:sequenceFlow sourceRef="PaymentCheck" targetRef="End_PaymentRefused">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">payment cannot be made</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+</bpmn:definitions>
